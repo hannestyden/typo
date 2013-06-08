@@ -2,19 +2,23 @@ module Typo
   ANYTHING = Object.new
 
   ArgumentTypeError = Class.new(ArgumentError)
-  ReturnTypeError   = Class.new(ArgumentError)
+  ReturnTypeError   = Class.new(StandardError)
 
-  def returns(return_type, locals = [], types = [])
-    locals.zip(types).each do |((name, var), type)|
-      if type
-        var.is_a?(type) || (raise ArgumentTypeError.new('type_error'))
+  def returns(return_type, binding_of_caller = nil)
+    if binding_of_caller
+      locals = eval('local_variables', binding_of_caller).reduce([]) { |vars, name| vars << [name, eval(name.to_s, binding_of_caller)]}
+      types  = eval('_ts', binding_of_caller)
+      locals.zip(types).each do |((name, var), type)|
+        if type
+          var.is_a?(type) || (raise ArgumentTypeError.new('Better error description'))
+        end
       end
     end
     return_value = yield
     if return_type == ANYTHING || return_value.is_a?(return_type)
       return_value
     else
-      raise ReturnTypeError.new('type_error')
+      raise ReturnTypeError.new('Better error description')
     end
   end
 end
@@ -28,16 +32,14 @@ if $0 == __FILE__
 
       def one_arg(string,
       _ts       =[String])
-        _ls = local_variables.reduce([]) { |vars, name| vars << [name, eval(name.to_s)]}
-        returns String, _ls, _ts do
+        returns ANYTHING, binding do
           string
         end
       end
 
       def two_args(string, symbol,
       _ts        =[String, Symbol])
-        _ls = local_variables.reduce([]) { |vars, name| vars << [name, eval(name.to_s)]}
-        returns String, _ls, _ts do
+        returns ANYTHING, binding do
           string
         end
       end

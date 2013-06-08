@@ -2,8 +2,6 @@ gem     'binding_of_caller'
 require 'binding_of_caller'
 
 module Typo
-  ANYTHING = Object.new
-
   ArgumentTypeError = Class.new(ArgumentError)
   ReturnTypeError   = Class.new(StandardError)
 
@@ -27,7 +25,7 @@ module Typo
       end
     end
     return_value = yield
-    if return_type == ANYTHING || return_value.is_a?(return_type)
+    if return_value.is_a?(return_type)
       return_value
     else
       raise ReturnTypeError.new('Better error description')
@@ -45,27 +43,27 @@ if $0 == __FILE__
       # Never used, only for style demonstration.
       def a(numeric,
       ____=[Numeric])
-        returns ANYTHING do
+        returns Object do
           :anything
         end
       end
 
       def one_arg(string,
       ____      =[String])
-        returns ANYTHING do
+        returns Object do
           string
         end
       end
 
       def two_args(string, symbol,
       ____       =[String, Symbol])
-        returns ANYTHING do
+        returns Object do
           string
         end
       end
 
       def returns_anything
-        returns ANYTHING do
+        returns Object do
           yield
         end
       end

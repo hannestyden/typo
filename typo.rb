@@ -28,7 +28,7 @@ if $0 == __FILE__
 
       def one_arg(string,
       _ts       =[String])
-        _ls = local_variables.reduce([]) { |vars, name| vars << [ name, eval(name.to_s) ]}
+        _ls = local_variables.reduce([]) { |vars, name| vars << [name, eval(name.to_s)]}
         returns String, _ls, _ts do
           string
         end
@@ -36,7 +36,7 @@ if $0 == __FILE__
 
       def two_args(string, symbol,
       _ts        =[String, Symbol])
-        _ls = local_variables.reduce([]) { |vars, name| vars << [ name, eval(name.to_s) ]}
+        _ls = local_variables.reduce([]) { |vars, name| vars << [name, eval(name.to_s)]}
         returns String, _ls, _ts do
           string
         end

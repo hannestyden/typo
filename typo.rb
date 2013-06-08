@@ -1,17 +1,20 @@
 module Typo
   ANYTHING = Object.new
 
+  ArgumentTypeError = Class.new(ArgumentError)
+  ReturnTypeError   = Class.new(ArgumentError)
+
   def returns(return_type, locals = [], types = [])
-    locals.zip(types).each do |(var, type)|
+    locals.zip(types).each do |((name, var), type)|
       if type
-        var.is_a?(type) || raise('type_error')
+        var.is_a?(type) || (raise ArgumentTypeError.new('type_error'))
       end
     end
     return_value = yield
     if return_type == ANYTHING || return_value.is_a?(return_type)
       return_value
     else
-      raise('type_error')
+      raise ReturnTypeError.new('type_error')
     end
   end
 end
@@ -25,7 +28,7 @@ if $0 == __FILE__
 
       def one_arg(string,
       _ts       =[String])
-        _ls = local_variables.map { |name| eval(name.to_s) }
+        _ls = local_variables.reduce([]) { |vars, name| vars << [ name, eval(name.to_s) ]}
         returns String, _ls, _ts do
           string
         end
@@ -33,7 +36,7 @@ if $0 == __FILE__
 
       def two_args(string, symbol,
       _ts        =[String, Symbol])
-        _ls = local_variables.map { |name| eval(name.to_s) }
+        _ls = local_variables.reduce([]) { |vars, name| vars << [ name, eval(name.to_s) ]}
         returns String, _ls, _ts do
           string
         end
@@ -59,7 +62,7 @@ if $0 == __FILE__
 
     def test_one_arg_invalid
       test = TestClass.new
-      assert_raises RuntimeError do
+      assert_raises Typo::ArgumentTypeError do
         test.one_arg(:symbol)
       end
     end
@@ -71,8 +74,8 @@ if $0 == __FILE__
 
     def test_two_args_invalid
       test = TestClass.new
-      assert_raises RuntimeError do; test.two_args('string', 'string'); end
-      assert_raises RuntimeError do; test.two_args(:symbol, :symbol);   end
+      assert_raises Typo::ArgumentTypeError do; test.two_args('string', 'string'); end
+      assert_raises Typo::ArgumentTypeError do; test.two_args(:symbol, :symbol);   end
     end
 
     def test_returns_anything
@@ -88,7 +91,7 @@ if $0 == __FILE__
 
     def test_return_value_invalid
       test = TestClass.new
-      assert_raises RuntimeError do
+      assert_raises Typo::ReturnTypeError do
         test.return_value { :symbol }
       end
     end

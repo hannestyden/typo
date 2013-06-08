@@ -1,13 +1,25 @@
+gem     'binding_of_caller'
+require 'binding_of_caller'
+
 module Typo
   ANYTHING = Object.new
 
   ArgumentTypeError = Class.new(ArgumentError)
   ReturnTypeError   = Class.new(StandardError)
 
-  def returns(return_type, binding_of_caller = nil)
+  def returns(return_type)
+    binding_of_caller = binding.of_caller(1)
     if binding_of_caller
-      locals = eval('local_variables', binding_of_caller).reduce([]) { |vars, name| vars << [name, eval(name.to_s, binding_of_caller)]}
-      types  = eval('_ts', binding_of_caller)
+      locals =
+        eval('local_variables', binding_of_caller).reduce([]) do |vars, name|
+          vars << [name, eval(name.to_s, binding_of_caller)]
+        end
+      types =
+        begin
+          eval('____', binding_of_caller)
+        rescue NameError
+          []
+        end
       locals.zip(types).each do |((name, var), type)|
         if type
           var.is_a?(type) || (raise ArgumentTypeError.new('Better error description'))
@@ -30,16 +42,24 @@ if $0 == __FILE__
     class TestClass
       include Typo
 
+      # Never used, only for style demonstration.
+      def a(numeric,
+      ____=[Numeric])
+        returns ANYTHING do
+          :anything
+        end
+      end
+
       def one_arg(string,
-      _ts       =[String])
-        returns ANYTHING, binding do
+      ____      =[String])
+        returns ANYTHING do
           string
         end
       end
 
       def two_args(string, symbol,
-      _ts        =[String, Symbol])
-        returns ANYTHING, binding do
+      ____       =[String, Symbol])
+        returns ANYTHING do
           string
         end
       end

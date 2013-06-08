@@ -1,6 +1,13 @@
 gem     'binding_of_caller'
 require 'binding_of_caller'
 
+# # TODO
+#
+# - Test arguments in non-alphabetical order.
+# - Add checker method for usage in methods without return value.
+# - Give `ArgumentTypeError` and `ReturnTypeError` informative messages.
+#
+
 module Typo
   ArgumentTypeError = Class.new(ArgumentError)
   ReturnTypeError   = Class.new(StandardError)
@@ -24,6 +31,7 @@ module Typo
         end
       end
     end
+
     return_value = yield
     if return_value.is_a?(return_type)
       return_value
